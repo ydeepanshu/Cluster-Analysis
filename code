@@ -1,0 +1,95 @@
+import numpy as np
+import pandas as pd;
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
+from sklearn.cluster import KMeans
+
+df=pd.read_csv('iris_dataset.csv')
+
+df
+
+plt.scatter(df['sepal_length'],df['sepal_width'])
+plt.xlabel('length of sepal')
+plt.ylabel('breadth of sepal')
+plt.show()
+
+data=df.copy()
+kmeans=KMeans(2)
+kmeans.fit(data)
+
+cluster=df.copy()
+cluster['cluster_predict']=kmeans.fit_predict(data)
+
+plt.scatter(cluster['sepal_length'],cluster['sepal_width'],c=cluster['cluster_predict'],cmap='rainbow')
+
+# Standardize the variables
+
+from sklearn import preprocessing
+x_scaled = preprocessing.scale(df)
+x_scaled
+
+## Clustering (scaled data)
+
+kmeans_scaled=KMeans(2)
+kmeans_scaled.fit(x_scaled)
+
+scaled=data.copy()
+scaled['scaled_predict']= kmeans_scaled.fit_predict(x_scaled)
+
+plt.scatter(scaled['sepal_length'],scaled['sepal_width'],c=scaled['scaled_predict'],cmap='rainbow')
+
+# Elbow Method
+
+wcss = []
+cl_num = 10
+for i in range (1,cl_num):
+    kmeans= KMeans(i)
+    kmeans.fit(x_scaled)
+    wcss_iter = kmeans.inertia_
+    wcss.append(wcss_iter)
+wcss
+
+
+number_clusters = range(1,cl_num)
+plt.plot(number_clusters, wcss)
+plt.title('The Elbow Method')
+plt.xlabel('Number of clusters')
+plt.ylabel('Within-cluster Sum of Squares')
+
+kmeans_scaled5=KMeans(3)
+kmeans_scaled5.fit(x_scaled)
+
+scaled['scaled_predict5']=kmeans_scaled5.fit_predict(x_scaled)
+
+plt.scatter(scaled['sepal_length'],scaled['sepal_width'],c=scaled['scaled_predict5'],cmap='rainbow')
+
+# Compare your solutions to the original iris dataset
+
+real=pd.read_csv('iris_with_answers.csv')
+
+real
+
+real['species'].unique()
+
+real['species']=real['species'].map({'setosa':0, 'versicolor':1 , 'virginica':2})
+
+real
+
+ plt.scatter(real['sepal_length'],real['sepal_width'],c=real['species'],cmap='rainbow')
+
+plt.scatter(real['petal_length'],real['petal_width'],c=real['species'],cmap='rainbow')
+
+pkmeans=KMeans(3)
+pkmeans.fit(x_scaled)
+
+scaled['petal_preedict']=pkmeans.fit_predict(x_scaled)
+
+plt.scatter(scaled['petal_length'],scaled['petal_width'],c=scaled['petal_preedict'],cmap='rainbow')
+
+This shows us that:
+
+The Elbow method is imperfect (we might have opted for 2 or even 4)
+K-means is very useful in moments where we already know the number of clusters - in this case: 3
+Biology cannot be always quantified (or better).. quantified with k-means! Other methods are much better at that
+
